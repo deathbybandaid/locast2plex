@@ -10,10 +10,10 @@
 # Implementation of a SSDP server.
 #
 
-import random
-import time
-import socket
 import logging
+import random
+import socket
+import time
 from email.utils import formatdate
 from errno import ENOPROTOOPT
 

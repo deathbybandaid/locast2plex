@@ -1,6 +1,9 @@
-import json, urllib2, time, os, sys, string
+# pylama:ignore=E722
+import json
+import urllib2
+import time
+import sys
 import m3u8
-
 
 
 class LocastService:
@@ -10,19 +13,13 @@ class LocastService:
     current_dma = None
     base_data_folder = None
 
-
-
-
-
     def __init__(self, base_folder, mock_location):
         self.base_data_folder = base_folder
 
-        if not mock_location == None:
+        if mock_location is not None:
             self.current_location = mock_location
 
-
-
-    def login(self, username, password):        
+    def login(self, username, password):
 
         # check environment vars
         if (username is None):
@@ -41,9 +38,9 @@ class LocastService:
         # {"username":"thomas_vg1@hotmail.com","password":"xxxxxxxx"}
 
         try:
-            loginReq = urllib2.Request('https://api.locastnet.org/api/user/login', 
-                                        '{"username":"' + username + '","password":"' + password + '"}',
-                                        {'Content-Type': 'application/json'})
+            loginReq = urllib2.Request('https://api.locastnet.org/api/user/login',
+                                       '{"username":"' + username + '","password":"' + password + '"}',
+                                       {'Content-Type': 'application/json'})
 
             loginOpn = urllib2.urlopen(loginReq)
             loginRes = json.load(loginOpn)
@@ -62,17 +59,14 @@ class LocastService:
         self.current_token = loginRes["token"]
         return True
 
-
-
-
-
     def validate_user(self):
         print("Validating User Info...")
 
         try:
             # get user info and make sure we donated
-            userReq = urllib2.Request('https://api.locastnet.org/api/user/me', 
-                                    headers={'Content-Type': 'application/json', 'authorization': 'Bearer ' + self.current_token})
+            userReq = urllib2.Request('https://api.locastnet.org/api/user/me',
+                                      headers={'Content-Type': 'application/json',
+                                               'authorization': 'Bearer ' + self.current_token})
 
             userOpn = urllib2.urlopen(userReq)
             userRes = json.load(userOpn)
@@ -88,7 +82,6 @@ class LocastService:
             print("Error during user info request: " + userInfoErr.message)
             return False
 
-
         print("User Info obtained.")
         print("User didDonate: " + str(userRes['didDonate']))
 
@@ -103,7 +96,6 @@ class LocastService:
         if ((userRes['donationExpire'] / 1000) < int(time.time())):
             print("Error!  User's donation ad-free period has expired.")
             return False
-
 
         # Check for user's location
         print("Getting user location...")
@@ -128,7 +120,6 @@ class LocastService:
             print("User location obtained as " + geoRes['latitude'] + '/' + geoRes['longitude'])
             self.current_location = geoRes
 
-
         # See if we have a market available to the user
         if self.current_dma is None:
             print("Getting user's media market (DMA)...")
@@ -136,10 +127,10 @@ class LocastService:
             try:
                 # https://api.locastnet.org/api/watch/dma/40.543034399999996/-75.42280769999999
                 # returns dma - local market
-                dmaReq = urllib2.Request('https://api.locastnet.org/api/watch/dma/' + 
-                                            self.current_location['latitude'] + '/' + 
-                                            self.current_location['longitude'], 
-                                        headers={'Content-Type': 'application/json'})
+                dmaReq = urllib2.Request('https://api.locastnet.org/api/watch/dma/' +
+                                         self.current_location['latitude'] + '/' +
+                                         self.current_location['longitude'],
+                                         headers={'Content-Type': 'application/json'})
 
                 dmaOpn = urllib2.urlopen(dmaReq)
                 dmaRes = json.load(dmaOpn)
@@ -157,19 +148,13 @@ class LocastService:
 
             print("DMA found as " + dmaRes['DMA'] + ": " + dmaRes['name'])
 
-            if (dmaRes['active'] == False):
+            if not dmaRes['active']:
                 print("DMA not available in Locast yet.  Exiting...")
                 return False
 
             self.current_dma = dmaRes['DMA']
 
-
         return True
-
-
-
-
-
 
     def get_stations(self):
 
@@ -180,9 +165,10 @@ class LocastService:
         try:
             # https://api.locastnet.org/api/watch/epg/504
             # get stations
-            stationsReq = urllib2.Request('https://api.locastnet.org/api/watch/epg/' + str(self.current_dma), 
-                                        headers={'Content-Type': 'application/json',
-                                                'authorization': 'Bearer ' + self.current_token})
+            stationsReq = urllib2.Request('https://api.locastnet.org/api/watch/epg/' +
+                                          str(self.current_dma),
+                                          headers={'Content-Type': 'application/json',
+                                                   'authorization': 'Bearer ' + self.current_token})
 
             stationsOpn = urllib2.urlopen(stationsReq)
             stationsRes = json.load(stationsOpn)
@@ -214,14 +200,10 @@ class LocastService:
                 print("No DMA to FCC mapping found.  Poke the developer to get it into locast2plex.")
                 return False
 
-
-
         with open(self.base_data_folder + 'known_stations.json', "r") as known_stations_file_obj:
             known_stations = json.load(known_stations_file_obj)
 
-
         noneChannel = 1000
-
 
         for index, locast_station in enumerate(stationsRes):
 
@@ -229,13 +211,13 @@ class LocastService:
             # whether the first char is a number (checking for result like "2.1 CBS")
             try:
                 # if number, get the channel and name -- we're done!
-                # Check if the the callsign has a float (x.x) value. Save as a 
+                # Check if the the callsign has a float (x.x) value. Save as a
                 # string though, to preserve any trailing 0s as on reported
                 # on https://github.com/tgorgdotcom/locast2plex/issues/42
 
                 assert(float(locast_station['callSign'].split()[0]))
                 stationsRes[index]['channel'] = locast_station['callSign'].split()[0]
-                
+
             except ValueError:
                 # result like "WDPN" or "CBS" in the callsign field, or the callsign in the name field
                 # then we'll search the callsign in a few different lists to get the station channel
@@ -249,68 +231,54 @@ class LocastService:
                 # example: WABCDT2
                 alt_callsign_result = self.detect_callsign(locast_station['name'])
 
-                
                 # check the known station json that we maintain whenever locast's
                 # reported station is iffy
                 # first look via "callsign" value
                 ks_result = self.find_known_station(locast_station, 'callSign', known_stations)
-                if ks_result != None:
+                if ks_result is not None:
                     stationsRes[index]['channel'] = ks_result['channel']
                     skip_sub_id = ks_result['skip_sub']
 
-
                 # then check "name"
-                if (not 'channel' in stationsRes[index]):
+                if ('channel' not in stationsRes[index]):
                     ks_result = self.find_known_station(locast_station, 'name', known_stations)
-                    if ks_result != None:
+                    if ks_result is not None:
                         stationsRes[index]['channel'] = ks_result['channel']
                         skip_sub_id = ks_result['skip_sub']
 
-
                 # if we couldn't find anything look through fcc list for a match.
                 # first by searching the callsign found in the "callsign" field
-                if (not 'channel' in stationsRes[index]) and callsign_result['verified']:
+                if ('channel' not in stationsRes[index]) and callsign_result['verified']:
                     result = self.find_fcc_station(callsign_result['callsign'], fcc_market, fcc_stations)
-                    if result != None:
+                    if result is not None:
                         stationsRes[index]['channel'] = result['channel']
                         skip_sub_id = result['analog']
 
-                
                 # if we still couldn't find it, see if there's a match via the
                 # "name" field
-                if (not 'channel' in stationsRes[index]) and alt_callsign_result['verified']:
+                if ('channel' not in stationsRes[index]) and alt_callsign_result['verified']:
                     result = self.find_fcc_station(alt_callsign_result['callsign'], fcc_market, fcc_stations)
-                    if result != None:
+                    if result is not None:
                         stationsRes[index]['channel'] = result['channel']
                         skip_sub_id = result['analog']
 
-                            
                 # locast usually adds a number in it's callsign (in either field).  that
                 # number is the subchannel
                 if (not skip_sub_id) and ('channel' in stationsRes[index]):
-                    if callsign_result['verified'] and (callsign_result['subchannel'] != None):
+                    if callsign_result['verified'] and (callsign_result['subchannel'] is not None):
                         stationsRes[index]['channel'] = stationsRes[index]['channel'] + '.' + callsign_result['subchannel']
-                    elif alt_callsign_result['verified'] and (alt_callsign_result['subchannel'] != None):
+                    elif alt_callsign_result['verified'] and (alt_callsign_result['subchannel'] is not None):
                         stationsRes[index]['channel'] = stationsRes[index]['channel'] + '.' + alt_callsign_result['subchannel']
                     else:
                         stationsRes[index]['channel'] = stationsRes[index]['channel'] + '.1'
 
-
                 # mark stations that did not get a channel, but outside of the normal range.
                 # the user will have to weed these out in Plex...
-                if (not 'channel' in stationsRes[index]):
+                if ('channel' not in stationsRes[index]):
                     stationsRes[index]['channel'] = str(noneChannel)
                     noneChannel = noneChannel + 1
 
-
         return stationsRes
-
-
-
-
-
-
-
 
     def detect_callsign(self, compare_string):
         verified = False
@@ -333,8 +301,8 @@ class LocastService:
             compare_string = compare_string[:-2]
 
         # verify if text from "callsign" is an actual callsign
-        if ( ((compare_string[0] == 'K') or (compare_string[0] == 'W')) and 
-             ((len(compare_string) == 3) or (len(compare_string) == 4)) ):
+        if (((compare_string[0] == 'K') or (compare_string[0] == 'W')) and
+                ((len(compare_string) == 3) or (len(compare_string) == 4))):
             verified = True
 
         return {
@@ -344,19 +312,15 @@ class LocastService:
             "callsign": compare_string
         }
 
-
-
-
-
     def find_known_station(self, station, searchBy, known_stations):
 
         for known_station in known_stations:
-            if ( (known_station[searchBy] == station[searchBy]) and 
-                 (known_station['dma'] == station['dma']) ):
+            if ((known_station[searchBy] == station[searchBy]) and
+                    (known_station['dma'] == station['dma'])):
 
                 returnChannel = known_station['rootChannel']
 
-                if known_station['subChannel'] != None:
+                if known_station['subChannel'] is not None:
                     return {
                         "channel": returnChannel + '.' + known_station['subChannel'],
                         "skip_sub": True
@@ -374,10 +338,6 @@ class LocastService:
                 }
 
         return None
-
-
-
-
 
     def find_fcc_station(self, callsign, market, fcc_stations):
         for fcc_station in fcc_stations:
@@ -401,22 +361,16 @@ class LocastService:
 
         return None
 
-
-
-
-
-
-
     def get_station_stream_uri(self, station_id):
         print("Getting station info for " + station_id + "...")
 
         try:
-            videoUrlReq = urllib2.Request('https://api.locastnet.org/api/watch/station/' + 
-                                                str(station_id) + '/' + 
-                                                self.current_location['latitude'] + '/' + 
-                                                self.current_location['longitude'], 
-                                            headers={'Content-Type': 'application/json',
-                                                    'authorization': 'Bearer ' + self.current_token})
+            videoUrlReq = urllib2.Request('https://api.locastnet.org/api/watch/station/' +
+                                          str(station_id) + '/' +
+                                          self.current_location['latitude'] + '/' +
+                                          self.current_location['longitude'],
+                                          headers={'Content-Type': 'application/json',
+                                                   'authorization': 'Bearer ' + self.current_token})
             videoUrlOpn = urllib2.urlopen(videoUrlReq)
             videoUrlRes = json.load(videoUrlOpn)
             videoUrlOpn.close()
@@ -434,37 +388,34 @@ class LocastService:
         print("Determining best video stream for " + station_id + "...")
 
         bestStream = None
-        
+
         # find the heighest stream url resolution and save it to the list
         videoUrlM3u = m3u8.load(videoUrlRes['streamUrl'])
 
-        
-
         print("Found " + str(len(videoUrlM3u.playlists)) + " Playlists")
-        
+
         if len(videoUrlM3u.playlists) > 0:
             for videoStream in videoUrlM3u.playlists:
-                if bestStream == None:
+                if bestStream is None:
                     bestStream = videoStream
 
-                elif ((videoStream.stream_info.resolution[0] > bestStream.stream_info.resolution[0]) and 
-                    (videoStream.stream_info.resolution[1] > bestStream.stream_info.resolution[1])):
+                elif ((videoStream.stream_info.resolution[0] > bestStream.stream_info.resolution[0]) and
+                        (videoStream.stream_info.resolution[1] > bestStream.stream_info.resolution[1])):
                     bestStream = videoStream
 
-                elif ((videoStream.stream_info.resolution[0] == bestStream.stream_info.resolution[0]) and 
-                    (videoStream.stream_info.resolution[1] == bestStream.stream_info.resolution[1]) and
-                    (videoStream.stream_info.bandwidth > bestStream.stream_info.bandwidth)):
+                elif ((videoStream.stream_info.resolution[0] == bestStream.stream_info.resolution[0]) and
+                        (videoStream.stream_info.resolution[1] == bestStream.stream_info.resolution[1]) and
+                        (videoStream.stream_info.bandwidth > bestStream.stream_info.bandwidth)):
                     bestStream = videoStream
-        
 
-            if bestStream != None:
-                print(station_id + " will use " + 
-                        str(bestStream.stream_info.resolution[0]) + "x" + str(bestStream.stream_info.resolution[1]) + 
-                        " resolution at " + str(bestStream.stream_info.bandwidth) + "bps")
+            if bestStream is not None:
+                print(station_id + " will use " +
+                      str(bestStream.stream_info.resolution[0]) + "x" +
+                      str(bestStream.stream_info.resolution[1]) +
+                      " resolution at " + str(bestStream.stream_info.bandwidth) + "bps")
 
                 return bestStream.absolute_uri
 
         else:
             print("No variant streams found for this station.  Assuming single stream only.")
             return videoUrlRes['streamUrl']
-

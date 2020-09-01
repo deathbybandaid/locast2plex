@@ -1,13 +1,18 @@
-import subprocess, os, sys, random, threading, socket, time, errno, SocketServer, ConfigParser
+# pylama:ignore=E722
+import subprocess
+import os
+import sys
+import random
+import threading
+import socket
+import time
+import errno
+import ConfigParser
 import SSDPServer
 import LocastService
 from templates import templates
-from functools import partial
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from multiprocessing import Process
-
-
-
 
 
 def clean_exit():
@@ -15,8 +20,6 @@ def clean_exit():
     sys.stdout.flush()
     os._exit(0)
 
-
-        
 
 # with help from https://www.acmesystems.it/python_http
 # and https://stackoverflow.com/questions/21631799/how-can-i-pass-parameters-to-a-requesthandler
@@ -36,39 +39,39 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
     local_locast = None
     bytes_per_read = 1024000
 
-    def do_GET(self): 
+    def do_GET(self):
         base_url = self.address + ':' + self.port
 
         # paths and logic mostly pulled from telly:routes.go: https://github.com/tellytv/telly
         if (self.path == '/') or (self.path == '/device.xml'):
             self.send_response(200)
-            self.send_header('Content-type','application/xml')
+            self.send_header('Content-type', 'application/xml')
             self.end_headers()
             self.wfile.write(self.templates['xmlDiscover'].format(self.reporting_model, self.uuid, base_url))
 
         elif self.path == '/discover.json':
             self.send_response(200)
-            self.send_header('Content-type','application/json')
+            self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(self.templates['jsonDiscover'].format(self.reporting_model, 
-                                                                   self.reporting_firmware_name, 
+            self.wfile.write(self.templates['jsonDiscover'].format(self.reporting_model,
+                                                                   self.reporting_firmware_name,
                                                                    self.tuner_count,
-                                                                   self.reporting_firmware_ver, 
-                                                                   self.uuid, 
+                                                                   self.reporting_firmware_ver,
+                                                                   self.uuid,
                                                                    base_url))
 
         elif self.path == '/lineup_status.json':
             self.send_response(200)
-            self.send_header('Content-type','application/json')
+            self.send_header('Content-type', 'application/json')
             self.end_headers()
             if self.station_scan:
                 self.wfile.write(self.templates['jsonLineupStatus'])
             else:
                 self.wfile.write(self.templates['jsonLineupComplete'])
-            
-        elif self.path == '/lineup.json': # TODO
+
+        elif self.path == '/lineup.json':  # TODO
             self.send_response(200)
-            self.send_header('Content-type','application/json')
+            self.send_header('Content-type', 'application/json')
             self.end_headers()
 
             returnJSON = ''
@@ -80,9 +83,9 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
             returnJSON = "[" + returnJSON + "]"
             self.wfile.write(returnJSON)
 
-        elif self.path == '/lineup.xml': # TODO 
+        elif self.path == '/lineup.xml':  # TODO
             self.send_response(200)
-            self.send_header('Content-type','application/xml')
+            self.send_header('Content-type', 'application/xml')
             self.end_headers()
             returnXML = ''
             for station_item in self.station_list:
@@ -95,12 +98,11 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
             channelUri = self.local_locast.get_station_stream_uri(channelId)
 
             self.send_response(200)
-            self.send_header('Content-type','video/mpeg; codecs="avc1.4D401E')
+            self.send_header('Content-type', 'video/mpeg; codecs="avc1.4D401E')
             self.end_headers()
 
             ffmpeg_proc = subprocess.Popen(["ffmpeg", "-i", channelUri, "-codec", "copy", "-f", "mpegts", "pipe:1"], stdout=subprocess.PIPE)
 
-            
             # get initial videodata. if that works, then keep grabbing it
             videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
 
@@ -117,20 +119,17 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                         if e.errno == errno.EPIPE:
                             # Send SIGTERM to shutdown ffmpeg
                             ffmpeg_proc.terminate()
-                            # ffmpeg writes a bit of data out to stderr after it terminates, 
-                            # need to read any hanging data to prevent a zombie process. 
+                            # ffmpeg writes a bit of data out to stderr after it terminates,
+                            # need to read any hanging data to prevent a zombie process.
                             ffmpeg_proc.communicate()
                             break
                         else:
                             raise
-                        
 
                 videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
 
             ffmpeg_proc.terminate()
             ffmpeg_proc.communicate()
-            
-
 
         # elif self.path == '/epg.xml':
         #     self.send_response(200)
@@ -139,19 +138,17 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
 
         elif self.path == '/debug.json':
             self.send_response(200)
-            self.send_header('Content-type','application/json')
+            self.send_header('Content-type', 'application/json')
             self.end_headers()
 
         else:
             print("Unknown request to " + self.path)
             self.send_response(501)
-            self.send_header('Content-type','text/html')
+            self.send_header('Content-type', 'text/html')
             self.end_headers()
             self.wfile.write(self.templates['htmlError'].format('501 - Not Implemented'))
-        
+
         return
-
-
 
     def do_POST(self):
 
@@ -177,26 +174,25 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                 if len(getdataItemSplit) > 1:
                     queryData[getdataItemSplit[0]] = getdataItemSplit[1]
 
-
         if contentPath == '/lineup.post':
             if queryData['scan'] == 'start':
                 self.station_scan = True
 
                 self.send_response(200)
-                self.send_header('Content-type','text/html')
+                self.send_header('Content-type', 'text/html')
                 self.end_headers()
 
                 self.station_list = locast.get_stations()
                 self.station_scan = False
-                
+
             elif queryData['scan'] == 'abort':
                 self.send_response(200)
-                self.send_header('Content-type','text/html')
+                self.send_header('Content-type', 'text/html')
                 self.end_headers()
             else:
                 print("Unknown scan command " + queryData['scan'])
                 self.send_response(400)
-                self.send_header('Content-type','text/html')
+                self.send_header('Content-type', 'text/html')
                 self.end_headers()
                 self.wfile.write(self.templates['htmlError'].format(queryData['scan'] + ' is not a valid scan command'))
 
@@ -204,10 +200,6 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
             print("Unknown request to " + contentPath)
 
         return
-
-
-
-
 
 
 # mostly from https://github.com/ZeWaren/python-upnp-ssdp-example
@@ -243,10 +235,6 @@ class PlexHttpServer(threading.Thread):
         httpd.serve_forever()
 
 
-
-
-
-
 # mostly from https://github.com/ZeWaren/python-upnp-ssdp-example
 def ssdpServerProcess(address, port, uuid):
     ssdp = SSDPServer.SSDPServer()
@@ -260,15 +248,11 @@ def ssdpServerProcess(address, port, uuid):
         pass
 
 
-
-
-
-################################### Startup Logic
+# Startup Logic
 if __name__ == '__main__':
-    
+
     # set to directory of script
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
 
     config = {
         'locast_username': None,
@@ -283,7 +267,7 @@ if __name__ == '__main__':
         'reporting_model': 'HDHR3-US',
         'reporting_firmware_name': 'hdhomerun3_atsc',
         'reporting_firmware_ver': '20150826',
-        'concurrent_listeners': '10' #to convert
+        'concurrent_listeners': '10'  # to convert
     }
 
     config_handler = ConfigParser.RawConfigParser()
@@ -317,7 +301,6 @@ if __name__ == '__main__':
     REPORTING_FIRMWARE_NAME = config["reporting_firmware_name"]
     REPORTING_FIRMWARE_VER = config["reporting_firmware_ver"]
 
-
     print("Locast2Plex v" + CURRENT_VERSION)
 
     print("Tuner count set to " + str(TUNER_COUNT))
@@ -326,21 +309,19 @@ if __name__ == '__main__':
     if DEVICE_UUID is None:
         print("No UUID found.  Generating one now...")
         # from https://pynative.com/python-generate-random-string/
-        # create a string that wouldn't be a real device uuid for 
+        # create a string that wouldn't be a real device uuid for
         DEVICE_UUID = ''.join(random.choice("hijklmnopqrstuvwxyz") for i in range(8))
         config_handler.set('main', 'uuid', DEVICE_UUID)
         with open("config.ini", 'w') as config_file:
             config_handler.write(config_file)
 
-
     print("UUID set to: " + DEVICE_UUID + "...")
-
 
     ffmpeg_proc = None
 
     mock_location = None
-    
-    if (not OVERRIDE_LATITUDE is None) and (not OVERRIDE_LONGITUDE is None):
+
+    if (OVERRIDE_LATITUDE is not None) and (OVERRIDE_LONGITUDE is not None):
         mock_location = {
             "latitude": OVERRIDE_LATITUDE,
             "longitude": OVERRIDE_LONGITUDE
@@ -349,7 +330,6 @@ if __name__ == '__main__':
     locast = LocastService.LocastService("./", mock_location)
     station_list = None
 
-    
     if (not locast.login(LOCAST_USERNAME, LOCAST_PASSWORD)) or (not locast.validate_user()):
         print("Exiting...")
         clean_exit()
