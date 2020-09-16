@@ -36,13 +36,25 @@ class LocastService:
     current_dma = None
     current_city = None
     active_dma = None
+    base_folder = None
     base_data_folder = None
+    json_data_folder = None
+
+    tv_stations = None
+    known_stations = None
 
 
     def __init__(self, base_folder, mock_location, zipcode):
-        self.base_data_folder = base_folder
+        self.base_folder = base_folder
+        self.base_data_folder = base_folder + "data/"
+        self.json_data_folder = self.base_data_folder + "json/"
         self.mock_location = mock_location
         self.zipcode = zipcode
+
+        #  Json files
+        self.tv_stations = self.json_data_folder + "tv_stations.json"
+        self.known_stations = self.json_data_folder + "known_stations.json"
+        self.fcc_dma_markets = self.json_data_folder + "fcc_dma_markets.json"
 
 
     @handle_url_except
@@ -243,20 +255,21 @@ class LocastService:
         # the FCC facilities list
         print("Loading FCC Stations list...")
 
-        with open(self.base_data_folder + "tv_stations.json", "r") as fcc_station_file_obj:
+        with open(self.tv_stations, "r") as fcc_station_file_obj:
             fcc_stations = json.load(fcc_station_file_obj)
-            with open("fcc_dma_markets.json", "r") as fcc_dma_file_obj:
-                dma_mapping = json.load(fcc_dma_file_obj)
 
-            try:
-                fcc_market = dma_mapping[str(self.current_dma)]
-            except KeyError:
-                print("No DMA to FCC mapping found.  Poke the developer to get it into locast2plex.")
-                return False
+        with open(self.fcc_dma_markets, "r") as fcc_dma_file_obj:
+            dma_mapping = json.load(fcc_dma_file_obj)
+
+        try:
+            fcc_market = dma_mapping[str(self.current_dma)]
+        except KeyError:
+            print("No DMA to FCC mapping found.  Poke the developer to get it into locast2plex.")
+            return False
 
 
 
-        with open(self.base_data_folder + 'known_stations.json', "r") as known_stations_file_obj:
+        with open(self.known_stations, "r") as known_stations_file_obj:
             known_stations = json.load(known_stations_file_obj)
 
 

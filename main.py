@@ -293,60 +293,65 @@ def ssdpServerProcess(address, port, uuid):
 if __name__ == '__main__':
 
     # set to directory of script
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    script_dir = os.path.dirname(os.path.abspath(__file__))
 
 
     config = {
-        'locast_username': None,
-        'locast_password': None,
-        'override_latitude': None,
-        'override_longitude': None,
-        'override_zipcode': None,
-        'bytes_per_read': '1152000',
-        'plex_accessible_ip': '0.0.0.0',
-        'plex_accessible_port': '6077',
-        'tuner_count': '3',
-        'uuid': None,
-        'reporting_model': 'HDHR3-US',
-        'reporting_firmware_name': 'hdhomerun3_atsc',
-        'reporting_firmware_ver': '20150826',
-        'concurrent_listeners': '10'  # to convert
+                "main": {
+                        'locast_username': None,
+                        'locast_password': None,
+                        'override_latitude': None,
+                        'override_longitude': None,
+                        'override_zipcode': None,
+                        'bytes_per_read': '1152000',
+                        'plex_accessible_ip': '0.0.0.0',
+                        'plex_accessible_port': '6077',
+                        'tuner_count': '3',
+                        'uuid': None,
+                        'reporting_model': 'HDHR3-US',
+                        'reporting_firmware_name': 'hdhomerun3_atsc',
+                        'reporting_firmware_ver': '20150826',
+                        'concurrent_listeners': '10'  # to convert
+                        }
     }
 
     config_handler = configparser.RawConfigParser()
-    if os.path.exists('config/config.ini'):
-        config_handler.read('config/config.ini')
+    if os.path.exists(script_dir + '/config/config.ini'):
+        config_file = script_dir + '/config/config.ini'
+    elif os.path.exists(script_dir + '/config.ini'):
+        config_file = script_dir + '/config.ini'
     else:
-        config_handler.read('config.ini')
+        print("Config file missing, Exiting...")
+        clean_exit()
 
-    try:
-        for option_name in config_handler.options("main"):
-            config[option_name] = config_handler.get("main", option_name)
-    except:
-        pass
+    config_handler = configparser.ConfigParser()
+    config_handler.read(config_file)
+    for each_section in config_handler.sections():
+        for (each_key, each_val) in config_handler.items(each_section):
+            config[each_section.lower()][each_key.lower()] = each_val
 
     LISTEN_ADDY = "0.0.0.0"
     LISTEN_PORT = "6077"
     CURRENT_VERSION = "0.5.3"
-    DEVICE_UUID = config["uuid"]
-    CONCURRENT_LISTENERS = int(config["concurrent_listeners"])
-    TUNER_COUNT = int(config["tuner_count"])
+    DEVICE_UUID = config["main"]["uuid"]
+    CONCURRENT_LISTENERS = int(config["main"]["concurrent_listeners"])
+    TUNER_COUNT = int(config["main"]["tuner_count"])
 
     if (TUNER_COUNT > 4) or (TUNER_COUNT < 1):
         print("Tuner count set outside of 1-4 range.  Setting to default")
         TUNER_COUNT = 3
 
-    LOCAST_USERNAME = config["locast_username"]
-    LOCAST_PASSWORD = config["locast_password"]
-    HOST_PORT = config["plex_accessible_port"]
-    HOST_ADDY = config["plex_accessible_ip"]
-    BYTES_PER_READ = int(config["bytes_per_read"])
-    OVERRIDE_LATITUDE = config["override_latitude"]
-    OVERRIDE_LONGITUDE = config["override_longitude"]
-    OVERRIDE_ZIPCODE = config["override_zipcode"]
-    REPORTING_MODEL = config["reporting_model"]
-    REPORTING_FIRMWARE_NAME = config["reporting_firmware_name"]
-    REPORTING_FIRMWARE_VER = config["reporting_firmware_ver"]
+    LOCAST_USERNAME = config["main"]["locast_username"]
+    LOCAST_PASSWORD = config["main"]["locast_password"]
+    HOST_PORT = config["main"]["plex_accessible_port"]
+    HOST_ADDY = config["main"]["plex_accessible_ip"]
+    BYTES_PER_READ = int(config["main"]["bytes_per_read"])
+    OVERRIDE_LATITUDE = config["main"]["override_latitude"]
+    OVERRIDE_LONGITUDE = config["main"]["override_longitude"]
+    OVERRIDE_ZIPCODE = config["main"]["override_zipcode"]
+    REPORTING_MODEL = config["main"]["reporting_model"]
+    REPORTING_FIRMWARE_NAME = config["main"]["reporting_firmware_name"]
+    REPORTING_FIRMWARE_VER = config["main"]["reporting_firmware_ver"]
 
     # docker users only configure the outside port, but for those running in command line/terminal
     # these will be the same
@@ -367,12 +372,8 @@ if __name__ == '__main__':
         DEVICE_UUID = ''.join(random.choice("hijklmnopqrstuvwxyz") for i in range(8))
         config_handler.set('main', 'uuid', DEVICE_UUID)
 
-        if os.path.exists('config/config.ini'):
-            with open("config/config.ini", 'w') as config_file:
-                config_handler.write(config_file)
-        else:
-            with open("config.ini", 'w') as config_file:
-                config_handler.write(config_file)
+        with open(config_file, 'w'):
+            config_handler.write(config_file)
 
     print("UUID set to: " + DEVICE_UUID + "...")
 
@@ -387,7 +388,7 @@ if __name__ == '__main__':
     else:
         mock_location = None
 
-    locast = LocastService.LocastService("./", mock_location, OVERRIDE_ZIPCODE)
+    locast = LocastService.LocastService(script_dir + "/", mock_location, OVERRIDE_ZIPCODE)
     station_list = None
 
 
@@ -398,13 +399,13 @@ if __name__ == '__main__':
         station_list = locast.get_stations()
 
         try:
-            print("Starting device server on " + config['plex_accessible_ip'] + ":" + config['plex_accessible_port'])
+            print("Starting device server on " + config["main"]['plex_accessible_ip'] + ":" + config["main"]['plex_accessible_port'])
             serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             serverSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             serverSocket.bind((LISTEN_ADDY, int(LISTEN_PORT)))
             serverSocket.listen(CONCURRENT_LISTENERS)
 
-            config = {
+            running_config = {
                 "host": (HOST_ADDY, HOST_PORT),
                 "listen": (LISTEN_ADDY, LISTEN_PORT),
                 "uuid": DEVICE_UUID,
@@ -416,7 +417,7 @@ if __name__ == '__main__':
             }
 
             for i in range(CONCURRENT_LISTENERS):
-                PlexHttpServer(serverSocket, config, templates, station_list, locast)
+                PlexHttpServer(serverSocket, running_config, templates, station_list, locast)
 
             print("Starting SSDP server...")
             ssdpServer = Process(target=ssdpServerProcess, args=(HOST_ADDY, HOST_PORT, DEVICE_UUID))
