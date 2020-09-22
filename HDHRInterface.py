@@ -210,7 +210,7 @@ class PlexHttpServer(threading.Thread):
         PlexHttpHandler.host_port = config.config["locast2plex"]["listen_port"]
         PlexHttpHandler.uuid = config.config["main"]["uuid"]
         PlexHttpHandler.tuner_count = int(config.config["locast2plex"]["tuner_count"])
-        PlexHttpHandler.tuner_type = int(config.config["dev"]["tuner_type"])
+        PlexHttpHandler.tuner_type = config.config["dev"]["tuner_type"]
         PlexHttpHandler.bytes_per_read = int(config.config["dev"]["bytes_per_read"])
         PlexHttpHandler.templates = templates
         PlexHttpHandler.station_list = station_list
