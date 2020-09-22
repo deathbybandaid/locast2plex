@@ -1,7 +1,6 @@
 import os
 import random
 import configparser
-from pathlib import Path
 
 from L2PTools import is_docker, clean_exit
 
