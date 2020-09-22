@@ -11,7 +11,7 @@ def facilitesServerProcess(script_dir, config):
 
     while True:
         mainfacilities(script_dir, config)
-        time.sleep(43200)
+        time.sleep(config.config["dev"]["fcc_delay"])
 
 
 def mainfacilities(script_dir, config):

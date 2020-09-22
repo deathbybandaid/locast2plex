@@ -34,6 +34,7 @@ class locast2plexConfig():
                         'reporting_firmware_name': 'hdhomerun3_atsc',
                         'reporting_firmware_ver': '20150826',
                         'epg_delay': 43200,
+                        'fcc_delay': 43200,
                         'ffmpeg_path': None,
                         }
     }
