@@ -8,13 +8,18 @@ import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 
+from L2PTools import clean_exit
+
 
 def epgServerProcess(script_dir, config, location):
     dummyxml(script_dir, config, location)
-    while True:
-        print("Fetching EPG for DMA " + str(location["DMA"]) + ".")
-        mainepg(script_dir, config, location)
-        time.sleep(config.config["dev"]["epg_delay"])
+    try:
+        while True:
+            print("Fetching EPG for DMA " + str(location["DMA"]) + ".")
+            mainepg(script_dir, config, location)
+            time.sleep(config.config["dev"]["epg_delay"])
+    except KeyboardInterrupt:
+        clean_exit()
 
 
 def dummyxml(script_dir, config, location):
