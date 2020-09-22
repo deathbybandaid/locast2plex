@@ -1,6 +1,7 @@
 import os
 import random
 import configparser
+from pathlib import Path
 
 from L2PTools import is_docker, clean_exit
 
@@ -45,7 +46,7 @@ class locast2plexConfig():
     def get_config_path(self, script_dir):
         for x in ['/config/config.ini', '/config.ini']:
             if os.path.exists(script_dir + x):
-                self.config_file = script_dir + x
+                self.config_file = Path(script_dir + x)
                 break
         if not self.config_file:
             print("Config file missing, Exiting...")
