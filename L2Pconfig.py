@@ -36,6 +36,7 @@ class locast2plexConfig():
                         'epg_delay': 43200,
                         'fcc_delay': 43200,
                         'ffmpeg_path': None,
+                        'tuner_type': "Antenna",
                         }
     }
 

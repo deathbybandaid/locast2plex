@@ -54,7 +54,10 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
             if self.station_scan:
                 self.wfile.write(self.templates['jsonLineupStatus'].encode('utf-8'))
             else:
-                self.wfile.write(self.templates['jsonLineupComplete'].encode('utf-8'))
+                jsonlineupcomplete = self.templates['jsonLineupComplete'].copy()
+                jsonlineupcomplete["Source"] = self.tuner_type
+                jsonlineupcomplete["SourceList"] = [self.tuner_type]
+                self.wfile.write(jsonlineupcomplete.encode('utf-8'))
 
         elif self.path == '/lineup.json':  # TODO
             self.send_response(200)
@@ -207,6 +210,7 @@ class PlexHttpServer(threading.Thread):
         PlexHttpHandler.host_port = config.config["locast2plex"]["listen_port"]
         PlexHttpHandler.uuid = config.config["main"]["uuid"]
         PlexHttpHandler.tuner_count = int(config.config["locast2plex"]["tuner_count"])
+        PlexHttpHandler.tuner_type = int(config.config["dev"]["tuner_type"])
         PlexHttpHandler.bytes_per_read = int(config.config["dev"]["bytes_per_read"])
         PlexHttpHandler.templates = templates
         PlexHttpHandler.station_list = station_list
