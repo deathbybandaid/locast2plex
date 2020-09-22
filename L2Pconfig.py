@@ -46,7 +46,7 @@ class locast2plexConfig():
     def get_config_path(self, script_dir):
         for x in ['/config/config.ini', '/config.ini']:
             if os.path.exists(script_dir + x):
-                self.config_file = Path(script_dir + x)
+                self.config_file = script_dir + x
                 break
         if not self.config_file:
             print("Config file missing, Exiting...")
@@ -62,8 +62,8 @@ class locast2plexConfig():
         self.config[section][key] = value
         self.config_handler.set(section, key, value)
 
-        with open(self.config_file, 'w'):
-            self.config_handler.write(self.config_file)
+        with open(self.config_file, 'w') as config_file:
+            self.config_handler.write(config_file)
 
 
 def config_adjustments(config, opersystem, script_dir):
