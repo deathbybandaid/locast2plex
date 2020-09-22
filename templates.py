@@ -74,8 +74,8 @@ templates = {
     'jsonLineupComplete': """{
     "ScanInProgress": false,
     "ScanPossible": true,
-    "Source": "Antenna",
-    "SourceList": ["Antenna"]
+    "Source": "{0}",
+    "SourceList": ["{0}"]
 }""",
 
 

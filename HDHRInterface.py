@@ -54,8 +54,7 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
             if self.station_scan:
                 self.wfile.write(self.templates['jsonLineupStatus'].encode('utf-8'))
             else:
-                jsonlineupcomplete = self.templates['jsonLineupComplete'].replace("Antenna", self.tuner_type)
-                self.wfile.write(jsonlineupcomplete.encode('utf-8'))
+                self.wfile.write(self.templates['jsonLineupComplete'].format(self.tuner_type).encode('utf-8'))
 
         elif self.path == '/lineup.json':  # TODO
             self.send_response(200)
