@@ -100,7 +100,7 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                                # "-"
                                ]
 
-            ffmpeg_proc = subprocess.Popen(ffmpetg_command, stdin=subprocess.PIPE)
+            ffmpeg_proc = subprocess.Popen(ffmpetg_command, stdout=subprocess.PIPE)
 
             ffmpeg_proc.stdin.write(channelUri)
 
