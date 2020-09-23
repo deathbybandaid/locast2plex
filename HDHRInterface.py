@@ -85,6 +85,7 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
         elif self.path.startswith('/watch'):
             channelId = self.path.replace('/watch/', '')
             channelUri = self.local_locast.get_station_stream_uri(channelId)
+            print(channelUri)
 
             self.send_response(200)
             self.send_header('Content-type', 'video/mpeg; codecs="avc1.4D401E')
