@@ -96,7 +96,7 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                                "-f", "mpegts",
                                "-nostats", "-hide_banner",
                                "-loglevel", "warning",
-                               "pipe:1"
+                               # "pipe:1"
                                ]
 
             ffmpeg_proc = subprocess.Popen(ffmpetg_command, stdout=subprocess.PIPE)
