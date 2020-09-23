@@ -104,8 +104,9 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                                            stdout=subprocess.PIPE,
                                            shell=False)
 
-            ffmpeg_proc.stdin.write(("/home/loading.png"))
-            ffmpeg_proc.stdin.close()
+            with open("/home/loading.png", 'rb') as loading_image:
+                ffmpeg_proc.stdin.write(loading_image.read())
+                ffmpeg_proc.stdin.close()
 
             # get initial videodata. if that works, then keep grabbing it
             videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
