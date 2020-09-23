@@ -214,24 +214,29 @@ class PlexHttpServer(threading.Thread):
     def __init__(self, serverSocket, config, templates, station_list, locast_service, script_dir, location):
         threading.Thread.__init__(self)
 
+        PlexHttpHandler.uuid = config.config["main"]["uuid"]
+
         PlexHttpHandler.host_address = config.config["locast2plex"]["listen_address"]
         PlexHttpHandler.host_port = config.config["locast2plex"]["listen_port"]
-        PlexHttpHandler.uuid = config.config["main"]["uuid"]
         PlexHttpHandler.tuner_count = int(config.config["locast2plex"]["tuner_count"])
-        PlexHttpHandler.tuner_type = config.config["dev"]["tuner_type"]
+        self.listen_address = config.config["locast2plex"]["listen_address"]
+        self.listen_port = config.config["locast2plex"]["listen_port"]
+
+        PlexHttpHandler.ffpmeg_path = config.config["ffmpeg"]["ffmpeg_path"]
         PlexHttpHandler.bytes_per_read = int(config.config["ffmpeg"]["bytes_per_read"])
-        PlexHttpHandler.templates = templates
-        PlexHttpHandler.station_list = station_list
-        PlexHttpHandler.local_locast = locast_service
+
         PlexHttpHandler.reporting_model = config.config["dev"]["reporting_model"]
         PlexHttpHandler.reporting_firmware_name = config.config["dev"]["reporting_firmware_name"]
         PlexHttpHandler.reporting_firmware_ver = config.config["dev"]["reporting_firmware_ver"]
-        PlexHttpHandler.ffpmeg_path = config.config["ffmpeg"]["ffmpeg_path"]
+        PlexHttpHandler.tuner_type = config.config["dev"]["tuner_type"]
+
+        PlexHttpHandler.templates = templates
+        PlexHttpHandler.station_list = station_list
+        PlexHttpHandler.local_locast = locast_service
+
         PlexHttpHandler.script_dir = script_dir
         PlexHttpHandler.location = location
 
-        self.listen_address = config.config["locast2plex"]["listen_address"]
-        self.listen_port = config.config["locast2plex"]["listen_port"]
         self.socket = serverSocket
 
         self.daemon = True
