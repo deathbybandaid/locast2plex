@@ -85,7 +85,7 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
         elif self.path.startswith('/watch'):
             channelId = self.path.replace('/watch/', '')
             channel_m3u8 = self.local_locast.get_station_stream_uri(channelId)
-            channel_m3u8_opened = urllib.request.urlopen(channel_m3u8).read()
+            channel_m3u8_opened = urllib.request.urlopen(channel_m3u8).read().replace("/proxy", "https://hls.locastnet.org/proxy")
             print(channel_m3u8_opened)
             return
 
