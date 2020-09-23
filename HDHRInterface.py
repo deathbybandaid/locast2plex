@@ -95,6 +95,7 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                                "-c:v", "copy",
                                "-c:a", "copy",
                                "-f", "mpegts",
+                               "-safe", "0",
                                "-protocol_whitelist", 'file,http,https,tcp,tls',
                                # "-nostats", "-hide_banner",
                                # "-loglevel", "warning",
