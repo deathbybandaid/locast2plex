@@ -17,8 +17,8 @@ class LocastDMAFinder():
                 }
 
     def __init__(self, config):
-        self.mock_location = config.config["dev"]["mock_location"]
-        self.zipcode = config.config["dev"]["override_zipcode"]
+        self.mock_location = config.config["location"]["mock_location"]
+        self.zipcode = config.config["location"]["override_zipcode"]
 
         # Check for user's location
 

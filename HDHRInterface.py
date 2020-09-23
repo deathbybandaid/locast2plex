@@ -218,14 +218,14 @@ class PlexHttpServer(threading.Thread):
         PlexHttpHandler.uuid = config.config["main"]["uuid"]
         PlexHttpHandler.tuner_count = int(config.config["locast2plex"]["tuner_count"])
         PlexHttpHandler.tuner_type = config.config["dev"]["tuner_type"]
-        PlexHttpHandler.bytes_per_read = int(config.config["dev"]["bytes_per_read"])
+        PlexHttpHandler.bytes_per_read = int(config.config["ffmpeg"]["bytes_per_read"])
         PlexHttpHandler.templates = templates
         PlexHttpHandler.station_list = station_list
         PlexHttpHandler.local_locast = locast_service
         PlexHttpHandler.reporting_model = config.config["dev"]["reporting_model"]
         PlexHttpHandler.reporting_firmware_name = config.config["dev"]["reporting_firmware_name"]
         PlexHttpHandler.reporting_firmware_ver = config.config["dev"]["reporting_firmware_ver"]
-        PlexHttpHandler.ffpmeg_path = config.config["dev"]["ffmpeg_path"]
+        PlexHttpHandler.ffpmeg_path = config.config["ffmpeg"]["ffmpeg_path"]
         PlexHttpHandler.script_dir = script_dir
         PlexHttpHandler.location = location
 

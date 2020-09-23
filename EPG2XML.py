@@ -17,7 +17,7 @@ def epgServerProcess(script_dir, config, location):
         while True:
             print("Fetching EPG for DMA " + str(location["DMA"]) + ".")
             mainepg(script_dir, config, location)
-            time.sleep(config.config["dev"]["epg_delay"])
+            time.sleep(config.config["locast"]["epg_update_frequency"])
     except KeyboardInterrupt:
         clean_exit()
 
@@ -63,7 +63,8 @@ def mainepg(script_dir, config, location):
     # Make a date range to pull
     todaydate = datetime.date.today()
     dates_to_pull = [todaydate]
-    for x in range(1, 6):
+    days_to_pull = config.config["locast"]["epg_update_days"]
+    for x in range(1, days_to_pull - 1):
         xdate = todaydate + datetime.timedelta(days=x)
         dates_to_pull.append(xdate)
 

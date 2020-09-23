@@ -37,8 +37,8 @@ class LocastService:
         self.base_data_folder = base_folder + "data/"
         self.json_data_folder = self.base_data_folder + "json/"
         self.facility_cache_folder = self.base_data_folder + "cache/facilities/"
-        self.mock_location = config.config["dev"]["mock_location"]
-        self.zipcode = config.config["dev"]["override_zipcode"]
+        self.mock_location = config.config["location"]["mock_location"]
+        self.zipcode = config.config["location"]["override_zipcode"]
 
         #  Json files
         self.tv_facilities = self.facility_cache_folder + "tv_facilities.json"

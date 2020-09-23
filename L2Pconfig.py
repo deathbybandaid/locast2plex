@@ -23,20 +23,25 @@ class locast2plexConfig():
                 "locast": {
                             "username": None,
                             "password": None,
+                            'epg_update_frequency': 43200,
+                            'epg_update_days': 7,
+                            },
+                "location": {
+                            'override_latitude': None,
+                            'override_longitude': None,
+                            'mock_location': None,
+                            'override_zipcode': None,
+                            },
+                "ffmpeg": {
+                            'ffmpeg_path': None,
+                            'bytes_per_read': '1152000',
                             },
                 "dev": {
-                        'override_latitude': None,
-                        'override_longitude': None,
-                        'mock_location': None,
-                        'override_zipcode': None,
-                        'bytes_per_read': '1152000',
                         'reporting_model': 'HDHR3-US',
                         'reporting_firmware_name': 'hdhomerun3_atsc',
                         'reporting_firmware_ver': '20150826',
-                        'epg_delay': 43200,
-                        'fcc_delay': 43200,
-                        'ffmpeg_path': None,
                         'tuner_type': "Antenna",
+                        'fcc_delay': 43200,
                         }
     }
 
@@ -102,14 +107,14 @@ def config_adjustments(config, opersystem, script_dir):
         config.write('main', 'uuid', config.config["main"]["uuid"])
     print("UUID set to: " + config.config["main"]["uuid"] + "...")
 
-    if (config.config["dev"]["override_latitude"] is not None) and (config.config["dev"]["override_longitude"] is not None):
-        config.config["dev"]["mock_location"] = {
-            "latitude": config.config["main"]["dev"],
-            "longitude": config.config["main"]["dev"]
+    if (config.config["location"]["override_latitude"] is not None) and (config.config["location"]["override_longitude"] is not None):
+        config.config["location"]["mock_location"] = {
+            "latitude": config.config["location"]["override_latitude"],
+            "longitude": config.config["location"]["override_longitude"]
         }
 
-    if not config.config["dev"]["ffmpeg_path"]:
+    if not config.config["ffmpeg"]["ffmpeg_path"]:
         if opersystem in ["Windows"]:
-            config.config["dev"]["ffmpeg_path"] = script_dir + "/ffmpeg/ffmpeg.exe"
+            config.config["ffmpeg"]["ffmpeg_path"] = script_dir + "/ffmpeg/ffmpeg.exe"
         else:
-            config.config["dev"]["ffmpeg_path"] = "ffmpeg"
+            config.config["ffmpeg"]["ffmpeg_path"] = "ffmpeg"
