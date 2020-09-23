@@ -104,7 +104,7 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                                            stdout=subprocess.PIPE,
                                            shell=False)
 
-            ffmpeg_proc.stdin.write(channelUri)
+            ffmpeg_proc.stdin.write(("/home/loading.png"))
             ffmpeg_proc.stdin.close()
 
             # get initial videodata. if that works, then keep grabbing it
