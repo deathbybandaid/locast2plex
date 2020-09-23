@@ -400,6 +400,5 @@ class LocastService:
             print("No variant streams found for this station.  Assuming single stream only.")
 
         videoUrlM3u8 = m3u8.load(streamurl).dumps().replace("/proxy", "https://hls.locastnet.org/proxy")
-        print(videoUrlM3u8)
 
         return videoUrlM3u8.encode('utf-8')
