@@ -6,6 +6,7 @@ import socket
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from templates import templates
+import m3u8
 
 
 # with help from https://www.acmesystems.it/python_http
@@ -105,13 +106,15 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                                            stdout=subprocess.PIPE,
                                            shell=False)
 
-            ffmpeg_proc.stdin.write(channel_m3u8)
-            ffmpeg_proc.stdin.close()
-
-            # get initial videodata. if that works, then keep grabbing it
-            videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
-
             while True:
+                videoUrlM3u8 = m3u8.load(channel_m3u8).dumps().replace("/proxy", "https://hls.locastnet.org/proxy").encode('utf-8')
+
+                ffmpeg_proc.stdin.write(videoUrlM3u8)
+                ffmpeg_proc.stdin.close()
+
+                # get initial videodata. if that works, then keep grabbing it
+                videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
+
                 if not videoData:
                     break
                 else:
