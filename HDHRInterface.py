@@ -4,6 +4,7 @@ import time
 import errno
 import socket
 from http.server import BaseHTTPRequestHandler, HTTPServer
+import urllib
 
 from templates import templates
 
@@ -105,9 +106,8 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                                            stdout=subprocess.PIPE,
                                            shell=False)
 
-            with open(channelUri, 'rb') as loading_image:
-                ffmpeg_proc.stdin.write(loading_image.read())
-                ffmpeg_proc.stdin.close()
+            ffmpeg_proc.stdin.write(urllib.request.urlopen(channelUri))
+            ffmpeg_proc.stdin.close()
 
             # get initial videodata. if that works, then keep grabbing it
             videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
