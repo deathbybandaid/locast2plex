@@ -84,24 +84,35 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
         elif self.path.startswith('/watch'):
             channelId = self.path.replace('/watch/', '')
             channelUri = self.local_locast.get_station_stream_uri(channelId)
+            print(channelUri)
+            return
 
             self.send_response(200)
             self.send_header('Content-type', 'video/mpeg; codecs="avc1.4D401E')
             self.end_headers()
 
             ffmpetg_command = [self.ffpmeg_path,
-                               "-i", channelUri,
+                               "-i", "/dev/stdin",
                                "-c:v", "copy",
                                "-c:a", "copy",
                                "-f", "mpegts",
                                "-nostats", "-hide_banner",
                                "-loglevel", "warning",
                                "pipe:1"
-                               # "-"
                                ]
 
-            ffmpeg_proc = subprocess.Popen(ffmpetg_command, stdout=subprocess.PIPE)
+            ffmpeg_cmd = subprocess.Popen(ffmpetg_command,
+                                          stdin=subprocess.PIPE,
+                                          stdout=subprocess.PIPE,
+                                          shell=False)
 
+            ffmpeg_cmd.stdin.write(channelUri)
+            ffmpeg_cmd.stdin.close()
+
+            while True:
+                output = ffmpeg_cmd.stdout.read()
+
+            """"
             # get initial videodata. if that works, then keep grabbing it
             videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
 
@@ -132,6 +143,7 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                 ffmpeg_proc.communicate()
             except ValueError:
                 print("Connection Closed")
+            """"
 
         elif self.path == '/xmltv.xml':
             self.send_response(200)
