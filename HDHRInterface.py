@@ -99,7 +99,9 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                                "pipe:1"
                                ]
 
-            ffmpeg_proc = subprocess.Popen(ffmpetg_command, stdout=subprocess.PIPE)
+            ffmpeg_proc = subprocess.Popen(ffmpetg_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+            ffmpeg_proc.proc.stdin
 
             # get initial videodata. if that works, then keep grabbing it
             videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
