@@ -4,7 +4,6 @@ import time
 import errno
 import socket
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import urllib
 
 from templates import templates
 
