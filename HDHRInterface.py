@@ -91,6 +91,7 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
 
             ffmpetg_command = [self.ffpmeg_path,
                                "-i", "/dev/stdin",
+                               "-loop", "1",
                                "-c:v", "copy",
                                "-c:a", "copy",
                                "-f", "mpegts",
