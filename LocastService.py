@@ -109,7 +109,7 @@ class LocastService:
         return True
 
 
-    def get_stations(self):
+    def get_stations(self, script_dir, config):
 
         # TODO: check if we dont return any results
 

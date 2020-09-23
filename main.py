@@ -46,7 +46,7 @@ if __name__ == '__main__':
         print("Invalid Locast Login Credentials. Exiting...")
         clean_exit()
 
-    station_list = locast.get_stations()
+    station_list = locast.get_stations(script_dir, config)
     print("Found " + str(len(station_list)) + " stations for DMA " + str(location_info.location["DMA"]))
 
     try:
