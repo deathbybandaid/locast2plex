@@ -46,15 +46,14 @@ if __name__ == '__main__':
         print("Invalid Locast Login Credentials. Exiting...")
         clean_exit()
 
+    station_list = locast.get_stations()
+    print("Found " + str(len(station_list)) + " stations for DMA " + str(location_info.location["DMA"]))
+
     try:
 
         print("Starting Facilities thread...")
-        Facilities.get_facilities(script_dir, config)
         epgServer = Process(target=Facilities.facilitesServerProcess, args=(script_dir + "/", config))
         epgServer.start()
-
-        station_list = locast.get_stations()
-        print("Found " + str(len(station_list)) + " stations for DMA " + str(location_info.location["DMA"]))
 
         print("Starting device server on " + config.config["locast2plex"]['listen_address'] + ":" + config.config["locast2plex"]['listen_port'])
         HDHRInterface.hdhrinterface_start(config, locast, station_list, script_dir, location_info.location)

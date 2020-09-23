@@ -10,6 +10,7 @@ import m3u8
 
 from L2PTools import handle_url_except
 from dma_markets import get_dma_info
+import Facilities
 
 
 class LocastService:
@@ -27,7 +28,7 @@ class LocastService:
     base_data_folder = None
     json_data_folder = None
 
-    tv_stations = None
+    tv_facilities = None
     known_stations = None
 
 
@@ -40,7 +41,7 @@ class LocastService:
         self.zipcode = config.config["dev"]["override_zipcode"]
 
         #  Json files
-        self.tv_stations = self.facility_cache_folder + "tv_facilities.json"
+        self.tv_facilities = self.facility_cache_folder + "tv_facilities.json"
         self.known_stations = self.json_data_folder + "known_stations.json"
 
         self.location = location
@@ -139,8 +140,9 @@ class LocastService:
         # get the actual channel number by comparing the callsign with
         # the FCC facilities list
         print("Loading FCC Stations list...")
+        Facilities.get_facilities(script_dir, config)
 
-        with open(self.tv_stations, "r") as fcc_station_file_obj:
+        with open(self.tv_facilities, "r") as fcc_station_file_obj:
             fcc_stations = json.load(fcc_station_file_obj)
         fcc_stations = fcc_stations["fcc_station_list"]
 

@@ -12,8 +12,8 @@ from L2PTools import clean_exit
 def facilitesServerProcess(script_dir, config):
     try:
         while True:
-            mainfacilities(script_dir, config)
             time.sleep(config.config["dev"]["fcc_delay"])
+            mainfacilities(script_dir, config)
     except KeyboardInterrupt:
         clean_exit()
 
