@@ -85,9 +85,6 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
         elif self.path.startswith('/watch'):
             channelId = self.path.replace('/watch/', '')
             channel_m3u8 = self.local_locast.get_station_stream_uri(channelId)
-            channel_m3u8_opened = urllib.request.urlopen(channel_m3u8).read().replace("/proxy", "https://hls.locastnet.org/proxy")
-            print(channel_m3u8_opened)
-            return
 
             self.send_response(200)
             self.send_header('Content-type', 'video/mpeg; codecs="avc1.4D401E')
@@ -109,7 +106,7 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                                            stdout=subprocess.PIPE,
                                            shell=False)
 
-            ffmpeg_proc.stdin.write(channel_m3u8_opened)
+            ffmpeg_proc.stdin.write(channel_m3u8)
             ffmpeg_proc.stdin.close()
 
             # get initial videodata. if that works, then keep grabbing it

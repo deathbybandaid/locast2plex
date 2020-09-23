@@ -368,6 +368,8 @@ class LocastService:
         # find the heighest stream url resolution and save it to the list
         videoUrlM3u = m3u8.load(videoUrlRes['streamUrl'])
 
+        streamurl = videoUrlRes['streamUrl']
+
 
 
         print("Found " + str(len(videoUrlM3u.playlists)) + " Playlists")
@@ -392,8 +394,11 @@ class LocastService:
                       str(bestStream.stream_info.resolution[0]) + "x" + str(bestStream.stream_info.resolution[1]) +
                       " resolution at " + str(bestStream.stream_info.bandwidth) + "bps")
 
-                return bestStream.absolute_uri
+                streamurl = bestStream.absolute_uri
 
         else:
             print("No variant streams found for this station.  Assuming single stream only.")
-            return videoUrlRes['streamUrl']
+
+        videoUrlM3u8 = m3u8.load(streamurl)
+
+        return videoUrlM3u8
