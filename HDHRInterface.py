@@ -112,6 +112,12 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                 ffmpeg_proc.stdin.write(videoUrlM3u8)
                 ffmpeg_proc.stdin.close()
 
+                videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
+                self.wfile.write(videoData)
+
+            return
+            while True:
+
                 # get initial videodata. if that works, then keep grabbing it
                 videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
 
