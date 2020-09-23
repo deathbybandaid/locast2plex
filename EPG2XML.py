@@ -63,7 +63,7 @@ def mainepg(script_dir, config, location):
     # Make a date range to pull
     todaydate = datetime.date.today()
     dates_to_pull = [todaydate]
-    days_to_pull = config.config["locast"]["epg_update_days"]
+    days_to_pull = int(config.config["locast"]["epg_update_days"])
     for x in range(1, days_to_pull - 1):
         xdate = todaydate + datetime.timedelta(days=x)
         dates_to_pull.append(xdate)
