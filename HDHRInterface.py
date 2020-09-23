@@ -110,7 +110,6 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                 videoUrlM3u8 = m3u8.load(channel_m3u8).dumps().replace("/proxy", "https://hls.locastnet.org/proxy").encode('utf-8')
 
                 ffmpeg_proc.stdin.write(videoUrlM3u8)
-                ffmpeg_proc.stdin.close()
 
                 # get initial videodata. if that works, then keep grabbing it
                 videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
@@ -135,6 +134,8 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                             raise
 
                 videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
+
+            ffmpeg_proc.stdin.close()
 
             ffmpeg_proc.terminate()
             try:
