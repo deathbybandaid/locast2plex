@@ -401,6 +401,7 @@ class LocastService:
 
         videoUrlM3u8 = m3u8.load(streamurl)
         for key in videoUrlM3u8.keys:
-            print(key)
+            if key:
+                print(key.uri)
 
         return videoUrlM3u8
