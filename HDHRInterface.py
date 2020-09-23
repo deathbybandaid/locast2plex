@@ -105,7 +105,7 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                                            stdout=subprocess.PIPE,
                                            shell=False)
 
-            with open("/home/loading.png", 'rb') as loading_image:
+            with open(channelUri, 'rb') as loading_image:
                 ffmpeg_proc.stdin.write(loading_image.read())
                 ffmpeg_proc.stdin.close()
 
