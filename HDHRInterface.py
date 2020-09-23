@@ -101,18 +101,17 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                                "pipe:1"
                                ]
 
-            ffmpeg_cmd = subprocess.Popen(ffmpetg_command,
-                                          stdin=subprocess.PIPE,
-                                          stdout=subprocess.PIPE,
-                                          shell=False)
+            ffmpeg_proc = subprocess.Popen(ffmpetg_command,
+                                           stdin=subprocess.PIPE,
+                                           stdout=subprocess.PIPE,
+                                           shell=False)
 
-            ffmpeg_cmd.stdin.write(channelUri)
-            ffmpeg_cmd.stdin.close()
+            ffmpeg_proc.stdin.write(channelUri)
+            ffmpeg_proc.stdin.close()
 
             while True:
-                output = ffmpeg_cmd.stdout.read()
+                output = ffmpeg_proc.stdout.read()
 
-            """"
             # get initial videodata. if that works, then keep grabbing it
             videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
 
@@ -143,7 +142,6 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
                 ffmpeg_proc.communicate()
             except ValueError:
                 print("Connection Closed")
-            """"
 
         elif self.path == '/xmltv.xml':
             self.send_response(200)
