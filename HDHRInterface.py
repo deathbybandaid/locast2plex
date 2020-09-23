@@ -90,6 +90,7 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
             ffmpetg_command = [self.ffpmeg_path,
+                               "-protocol_whitelist", 'file,http,https,tcp,tls',
                                "-i", "/dev/stdin",
                                "-loop", "1",
                                "-c:v", "copy",
