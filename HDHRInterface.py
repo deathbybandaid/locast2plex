@@ -109,9 +109,6 @@ class PlexHttpHandler(BaseHTTPRequestHandler):
             ffmpeg_proc.stdin.write(channelUri)
             ffmpeg_proc.stdin.close()
 
-            while True:
-                output = ffmpeg_proc.stdout.read()
-
             # get initial videodata. if that works, then keep grabbing it
             videoData = ffmpeg_proc.stdout.read(self.bytes_per_read)
 
