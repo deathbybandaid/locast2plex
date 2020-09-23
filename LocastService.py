@@ -400,5 +400,7 @@ class LocastService:
             print("No variant streams found for this station.  Assuming single stream only.")
 
         videoUrlM3u8 = m3u8.load(streamurl)
+        for key in videoUrlM3u8.keys:
+            print(key)
 
         return videoUrlM3u8
