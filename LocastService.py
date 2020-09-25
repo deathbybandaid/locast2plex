@@ -360,6 +360,8 @@ class LocastService:
             print("Error when getting the video URL: " + videoUrlReqErr.message)
             return False
 
+        return videoUrlRes['streamUrl']
+
         print("Determining best video stream for " + station_id + "...")
 
         bestStream = None
